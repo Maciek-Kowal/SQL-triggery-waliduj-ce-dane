@@ -1,0 +1,23 @@
+delimiter #
+create function czy_pesel(pesel char(11)) returns int deterministic
+begin
+declare suma int#
+declare wynik int#
+if (char_length(pesel) = 11 and pesel regexp '^[0-9]+$') then
+set suma = substring(pesel,1,1)*1 +
+ substring(pesel,2,1)*3 +
+ substring(pesel,3,1)*7 +
+ substring(pesel,4,1)*9 +
+ substring(pesel,5,1)*1 +
+ substring(pesel,6,1)*3 +
+ substring(pesel,7,1)*7 + 
+ substring(pesel,8,1)*9 +
+ substring(pesel,9,1)*1 +
+ substring(pesel,10,1)*3#
+if ((10 - (suma % 10)) % 10 = substring(pesel,11,1)*1) then set wynik = 1#
+ else set wynik = 0# end if#
+else set wynik = 0# end if#
+return wynik#
+end#
+select czy_pesel('55061474527') as czy_pesel_test1#
+select czy_pesel('49040501580') as czy_pesel_test2#

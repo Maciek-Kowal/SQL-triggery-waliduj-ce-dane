@@ -1,0 +1,35 @@
+delimiter #
+
+create function sprawdziban(iban varchar(34))
+returns int
+deterministic
+begin
+    declare numerycznyiban varchar(30);
+    declare mod_val int;
+    declare i int;
+
+    set mod_val = 0;
+    set i = 1;
+    set iban = upper(iban);
+
+    if char_length(iban) = 28 and left(iban, 2) = 'PL' then
+        if substring(iban, 3, 26) regexp '[^0-9]' then
+            return 0;
+        end if;
+
+        set numerycznyiban = concat(substring(iban, 5, 24), '2521', substring(iban, 3, 2));
+
+        while i <= char_length(numerycznyiban) do
+            set mod_val = (mod_val * 10 + substring(numerycznyiban, i, 1)) % 97;
+            set i = i + 1;
+        end while;
+
+        if mod_val = 1 then
+            return 1;
+        else
+            return 0;
+        end if;
+    end if;
+
+    return 0;
+end #
